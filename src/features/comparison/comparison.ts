@@ -135,7 +135,15 @@ export const buildShoppingList = (
 ): ShoppingListItem[] =>
   comparison.items.flatMap((item) => {
     const flyerItem = flyerItems.find((candidate) => candidate.id === item.flyerItemId);
-    if (!flyerItem || item.purchasePrice === null || item.packagesRequired === null) return [];
+    if (
+      !flyerItem
+      || item.purchasePrice === null
+      || item.packagesRequired === null
+      || flyerItem.packageQuantity === null
+      || flyerItem.packageUnit === null
+    ) {
+      return [];
+    }
 
     return [{
       id: comparison.store.id + "-" + item.ingredientId,
