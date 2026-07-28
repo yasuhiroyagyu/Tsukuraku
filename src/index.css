@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { @apply border-slate-200; }
+  html { scroll-behavior: smooth; }
+  body { @apply m-0 min-w-[320px] bg-cream font-sans text-ink antialiased; }
+  button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+  input[type="checkbox"] { @apply h-5 w-5 rounded border-slate-300 text-teal-700 focus:ring-teal-600; }
+}
+
+@layer components {
+  .field-label { @apply mb-1.5 block text-sm font-bold text-slate-700; }
+  .field-input { @apply min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-ink outline-none transition placeholder:text-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-100; }
+  .eyebrow { @apply text-xs font-black uppercase tracking-[0.18em] text-teal-700; }
+}
