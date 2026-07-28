@@ -127,6 +127,19 @@ export const calculateStoreComparisons = (
   }));
 };
 
+export const refreshComparisonStores = (
+  comparisons: StoreComparison[],
+  stores: Store[],
+): StoreComparison[] => {
+  const currentStores = new Map(stores.map((store) => [store.id, store]));
+  return comparisons.map((comparison) => {
+    const currentStore = currentStores.get(comparison.store.id);
+    return currentStore
+      ? { ...comparison, store: { ...comparison.store, ...currentStore } }
+      : comparison;
+  });
+};
+
 export const buildShoppingList = (
   comparison: StoreComparison,
   flyerItems: FlyerItem[],

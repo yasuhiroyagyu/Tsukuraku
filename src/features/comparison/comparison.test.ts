@@ -2,12 +2,13 @@ import { describe, expect, it } from "vitest";
 import { mockFlyerItems } from "../../mocks/flyerItems";
 import { mockRecipes } from "../../mocks/recipes";
 import { mockStores } from "../../mocks/stores";
-import type { FlyerItem, InventoryItem } from "../../types";
+import type { FlyerItem, InventoryItem, StoreComparison } from "../../types";
 import {
   buildShoppingList,
   calculatePackagesRequired,
   calculateStoreComparisons,
   getMissingIngredients,
+  refreshComparisonStores,
 } from "./comparison";
 
 const oyakodon = mockRecipes.find((recipe) => recipe.id === "oyakodon");
@@ -119,5 +120,27 @@ describe("価格比較ロジック", () => {
     const allAvailable = oyakodon.ingredients.map((item) => ({ ingredientId: item.ingredientId, hasItem: true }));
     const [comparison] = calculateStoreComparisons(mockStores, oyakodon.ingredients, allAvailable, mockFlyerItems);
     expect(buildShoppingList(comparison, mockFlyerItems, new Map())).toEqual([]);
+  });
+
+  it("保存済みの比較結果を最新の店舗情報で更新する", () => {
+    const [comparison] = calculateStoreComparisons(
+      [mockStores[0]],
+      oyakodon.ingredients,
+      pantry,
+      mockFlyerItems,
+    );
+    const savedComparison = {
+      ...comparison,
+      store: {
+        ...comparison.store,
+        latitude: undefined,
+        longitude: undefined,
+      },
+    } as unknown as StoreComparison;
+
+    const [refreshed] = refreshComparisonStores([savedComparison], mockStores);
+
+    expect(refreshed.store.latitude).toBe(mockStores[0].latitude);
+    expect(refreshed.store.longitude).toBe(mockStores[0].longitude);
   });
 });

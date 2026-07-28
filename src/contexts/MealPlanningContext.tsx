@@ -1,5 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { buildShoppingList, calculateStoreComparisons } from "../features/comparison/comparison";
+import {
+  buildShoppingList,
+  calculateStoreComparisons,
+  refreshComparisonStores,
+} from "../features/comparison/comparison";
 import { mockIngredients } from "../mocks/ingredients";
 import { flyerRepository } from "../repositories/flyerRepository";
 import { storeRepository } from "../repositories/storeRepository";
@@ -37,6 +41,23 @@ export function MealPlanningProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<MealPlanningState>(loadState);
 
   useEffect(() => { localStorage.setItem(storageKey, JSON.stringify(state)); }, [state]);
+  useEffect(() => {
+    let cancelled = false;
+    void storeRepository.getAll()
+      .then((stores) => {
+        if (cancelled) return;
+        setState((current) => ({
+          ...current,
+          comparisons: refreshComparisonStores(current.comparisons, stores),
+        }));
+      })
+      .catch(() => {
+        // Keep saved comparisons available if the latest store data cannot be loaded.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const selectRecipe = useCallback((recipe: Recipe) => {
     setState((current) => ({
