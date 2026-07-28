@@ -5,7 +5,7 @@ import { resolveIngredientId } from "../../utils/ingredientMatching";
 import { Badge } from "../common/Badge";
 import { Button } from "../common/Button";
 
-const units: Unit[] = ["g", "kg", "ml", "l", "個", "本", "袋", "パック", "缶"];
+const units: Unit[] = ["g", "kg", "ml", "l", "個", "本", "袋", "パック", "缶", "枚", "食"];
 const statusLabels: Record<FlyerItemStatus, string> = { review_required: "確認待ち", approved: "承認済み", rejected: "却下", published: "公開中" };
 
 export function OcrReviewCard({ item, onChange, onStatus }: { item: FlyerItem; onChange: (item: FlyerItem) => void; onStatus: (status: FlyerItemStatus) => void }) {

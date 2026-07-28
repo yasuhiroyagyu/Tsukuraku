@@ -24,6 +24,8 @@ export type Unit =
   | "袋"
   | "パック"
   | "缶"
+  | "枚"
+  | "食"
   | "大さじ"
   | "小さじ"
   | "少々";
@@ -118,7 +120,7 @@ export type ShoppingListItem = {
   ingredientId: string;
   name: string;
   quantityLabel: string;
-  price: number;
+  price: number | null;
   checked: boolean;
 };
 

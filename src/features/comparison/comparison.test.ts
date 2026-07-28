@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { mockFlyerItems } from "../../mocks/flyerItems";
 import { mockRecipes } from "../../mocks/recipes";
 import { mockStores } from "../../mocks/stores";
-import type { InventoryItem } from "../../types";
+import type { FlyerItem, InventoryItem } from "../../types";
 import {
   buildShoppingList,
   calculatePackagesRequired,
@@ -41,6 +41,10 @@ describe("価格比較ロジック", () => {
     expect(calculatePackagesRequired(3, "小さじ", 10, "ml")).toBe(2);
   });
 
+  it("単位が異なる商品は購入額を確定しない", () => {
+    expect(calculatePackagesRequired(150, "g", 1, "個")).toBeNull();
+  });
+
   it("店舗ごとの合計金額を正しく計算する", () => {
     const result = calculateStoreComparisons(mockStores, oyakodon.ingredients, pantry, mockFlyerItems);
     expect(result.find((item) => item.store.id === "kasumi")?.totalPrice).toBe(632);
@@ -55,6 +59,60 @@ describe("価格比較ロジック", () => {
   it("価格が揃う店舗の中から最安を決める", () => {
     const result = calculateStoreComparisons(mockStores, oyakodon.ingredients, pantry, mockFlyerItems);
     expect(result.find((item) => item.isCheapest)?.store.id).toBe("trial");
+  });
+
+  it("同じ食材では必要パック数を含めた購入額が最小の商品を選ぶ", () => {
+    const discountedChicken: FlyerItem = {
+      ...mockFlyerItems.find((item) => item.id === "trial-chicken-thigh")!,
+      id: "trial-chicken-thigh-discount",
+      price: 100,
+      packageQuantity: 200,
+    };
+    const result = calculateStoreComparisons(
+      mockStores,
+      oyakodon.ingredients,
+      pantry,
+      [...mockFlyerItems, discountedChicken],
+    );
+    const chicken = result.find((item) => item.store.id === "trial")?.items
+      .find((item) => item.ingredientId === "chicken-thigh");
+
+    expect(chicken?.flyerItemId).toBe("trial-chicken-thigh-discount");
+    expect(chicken?.purchasePrice).toBe(100);
+  });
+
+  it("未公開のOCR結果は比較に利用しない", () => {
+    const unpublishedChicken: FlyerItem = {
+      ...mockFlyerItems.find((item) => item.id === "trial-chicken-thigh")!,
+      id: "trial-chicken-thigh-unpublished",
+      price: 1,
+      status: "review_required",
+    };
+    const result = calculateStoreComparisons(
+      mockStores,
+      oyakodon.ingredients,
+      pantry,
+      [...mockFlyerItems, unpublishedChicken],
+    );
+    const chicken = result.find((item) => item.store.id === "trial")?.items
+      .find((item) => item.ingredientId === "chicken-thigh");
+
+    expect(chicken?.flyerItemId).toBe("trial-chicken-thigh");
+    expect(chicken?.purchasePrice).toBe(270);
+  });
+
+  it("価格不明の商品も買い物リストへ残す", () => {
+    const comparison = calculateStoreComparisons(mockStores, oyakodon.ingredients, pantry, mockFlyerItems)
+      .find((item) => item.store.id === "lopia");
+    if (!comparison) throw new Error("ロピアの比較結果が必要です");
+
+    const list = buildShoppingList(comparison, mockFlyerItems, new Map([["egg", "卵"]]));
+    expect(list).toHaveLength(3);
+    expect(list.find((item) => item.ingredientId === "egg")).toMatchObject({
+      name: "卵",
+      quantityLabel: "必要 2個",
+      price: null,
+    });
   });
 
   it("すべて家にある場合は買い物リストが空になる", () => {
