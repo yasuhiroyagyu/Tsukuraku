@@ -39,6 +39,7 @@ export const mockStores: Store[] = [
   },
   {
     id: "tairaya-tsukuba-sakura",
+    imageUrl: "https://poiend-pctr.c.yimg.jp/RbvIgEqcLh0WnvgGGwVVgTznkURkbN_CqctDurJdF3SYC6oMafQjplWWCwWFTEPLz0YUPKTKLBs617Pxo3g8slcS0x7Q5IICY8oycNdd2832ShbvLyFRZGdQlkkapACaa-lX-MtOyhEQKpo7M9w-OllZx2yUKvtfaiTuBCiflTKQ1353m_jjQNuEH_M4qKbxfCgM7R8XFjifi_f9-QlK4Qyp5mTEOMc6xE-fFfKZ2IYpMc6GYJ9Z-utSDoeN3x01zt6M70iCpV6VCxZ_hEuiWhXx7JhlR2aLlRtDh1At_k4=",
     name: "TAIRAYA",
     branchName: "つくば桜店",
     address: "茨城県つくば市桜3丁目5-2",
@@ -50,6 +51,7 @@ export const mockStores: Store[] = [
   },
   {
     id: "taiyo-gakuen-no-mori",
+    imageUrl: "https://www.super-taiyo.com/wp-content/uploads/2021/03/72ed570c03dfbb2b041454833ec6a9f7.jpeg",
     name: "タイヨー",
     branchName: "学園の森店",
     address: "茨城県つくば市学園の森2丁目14-3",
@@ -61,6 +63,7 @@ export const mockStores: Store[] = [
   },
   {
     id: "york-benimaru-tsukuba-takezono",
+    imageUrl: "https://poiend-pctr.c.yimg.jp/RbvIgEqcLh0WnvgGGwVVgTznkURkbN_CqctDurJdF3Q1_cC5UUJAVrC3STf6G9i-FRW_tJSfNq8oPu2dEuI01hdQlLzeiczRY0IUeYbiVkKOsdy4iaqLbSFfcxBLor6y1Os-vjlC2OsB6bu9DUwOw02WDmRwEfHhlwDRraGYVBhiVFvMQQfSghsyikka-KECUdpfYBmnfXM-LNvNENNyHVVLVd_Y-_wpKOZwMIrUsQ0rUB9TwjyUqmyml8XMxB3JVgMJHW3gVQod0BqMwTqfDbmui_yR1xlpD0pe5HfA2jc=",
     name: "ヨークベニマル",
     branchName: "つくば竹園店",
     address: "茨城県つくば市竹園1丁目3-1",
@@ -72,6 +75,7 @@ export const mockStores: Store[] = [
   },
   {
     id: "york-benimaru-tsukuba-sakuranomori",
+    imageUrl: "https://poiend-pctr.c.yimg.jp/RbvIgEqcLh0WnvgGGwVVgTznkURkbN_CqctDurJdF3SW9mrN9-KFuuFdxRob9zq3dgj2hYwJyl-ePUA0qGezpA7dLg2O1i_6_9erCt0EuJs8oTA2M-kAXhACCLmAGx5Ng8emSrqxmbHueOZ7nBscvDtMw994unT69l_P-_dlCn6VZpD-yYHUURDtsKwwim0LZoia-e0biWhueQKF9c8fvzoC9ROPxpxh0EzC0UgnnqOphOAXK30V8pBTK0-T7GHLvGFtRx93fQh353gKgQ1ATKvkOJ4jyfkFTW0G8he-xRA=",
     name: "ヨークベニマル",
     branchName: "つくばさくらの杜店",
     address: "茨城県つくば市さくらの森25-5",
@@ -83,6 +87,7 @@ export const mockStores: Store[] = [
   },
   {
     id: "hanamasa-plus-tsukuba",
+    imageUrl: "https://poiend-pctr.c.yimg.jp/RbvIgEqcLh0WnvgGGwVVgTznkURkbN_CqctDurJdF3RTS4j3YzRt9q0jiabQdMEfjHbxCs_0o1lziZrbEgqXzK3ngk0g0pUrNhyqFWDq4XXdc4R_AsSJk4l3gwGxK1nl9FWF207yDa87WWY6f55iRs1vO8uKtFuKMyWYLxJ1aB6O5oApTcjXW5EdBRGc97yxfiDNgDAW0bEeyiS5EvCSlkCYAafx5i-5HWtDkH4ubBxcSudg7e-Rka35tdOpzJSWWDapiEzAnclTIM84rXqwa5uwQ0MOfCxHRdHGFcXnbV0=",
     name: "肉のハナマサPLUS",
     branchName: "つくば店",
     address: "茨城県つくば市手代木上谷原309-7",
@@ -94,6 +99,7 @@ export const mockStores: Store[] = [
   },
   {
     id: "tairaya-tsukuba-oho",
+    imageUrl: "https://poiend-pctr.c.yimg.jp/RbvIgEqcLh0WnvgGGwVVgTznkURkbN_CqctDurJdF3SYwJXLIczBY-8e9s3_rTVGeZNSpAcziiru1RuUBNKuuRdDohsx9Ns2mbwbzSnAtRL2hriJf7FQ1uRAo6RbGqFI9XHD16erRQlBklvI-5XzeVq_cV6FQQLc1C0lpjc0GR9IYBZ1FeBSxU_Q9S4UYtMegQoa4AcqyjM10NrX5tk_Bha9IO-e_GsUtO2ODH_9rodx_EPdibGUcf8pPVfEyc3H2TVilSEbHpHlc5zSSP42O0KI0ULB4LKiywflo7NX3fA=",
     name: "TAIRAYA",
     branchName: "つくば大穂店",
     address: "茨城県つくば市筑穂2丁目6-7",
