@@ -39,7 +39,7 @@ const shared: Array<[string, string, number, number, Unit]> = [
   ["yakisoba", "蒸し焼きそば", 118, 3, "袋"],
   ["pasta", "スパゲッティ", 198, 500, "g"],
   ["kimchi", "白菜キムチ", 198, 300, "g"],
-  ["tuna", "ライトツナ", 298, 3, "個"],
+  ["tuna", "ライトツナ", 298, 3, "缶"],
   ["tomato-sauce", "トマトソース", 158, 300, "g"],
   ["potato", "じゃがいも", 198, 5, "個"],
   ["curry-roux", "カレールー", 198, 140, "g"],

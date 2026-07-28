@@ -5,7 +5,7 @@ const links = [
   { to: "/admin", label: "ダッシュボード", icon: Gauge, end: true },
   { to: "/admin/flyers", label: "チラシ一覧", icon: FileImage },
   { to: "/admin/flyers/upload", label: "アップロード", icon: Upload },
-  { to: "/admin/review", label: "OCR確認", icon: ScanText },
+  { to: "/admin/review", label: "解析結果確認", icon: ScanText },
   { to: "/admin/recipes", label: "料理管理", icon: Soup },
 ];
 

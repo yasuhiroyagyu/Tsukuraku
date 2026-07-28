@@ -14,7 +14,21 @@ export type FlyerItemStatus =
   | "rejected"
   | "published";
 
-export type Unit = "g" | "kg" | "ml" | "l" | "個" | "本" | "袋" | "パック";
+export type Unit =
+  | "g"
+  | "kg"
+  | "ml"
+  | "l"
+  | "個"
+  | "本"
+  | "袋"
+  | "パック"
+  | "缶"
+  | "枚"
+  | "食"
+  | "大さじ"
+  | "小さじ"
+  | "少々";
 
 export type Store = {
   id: string;
@@ -22,6 +36,10 @@ export type Store = {
   branchName: string;
   address: string;
   distanceKm: number;
+  latitude: number;
+  longitude: number;
+  fallbackWalkingMinutes: number;
+  fallbackCyclingMinutes: number;
 };
 
 export type Ingredient = {
@@ -44,8 +62,11 @@ export type Recipe = {
   name: string;
   description: string;
   cookingTime: number;
-  estimatedCost: number;
+  estimatedCost: number | null;
   difficulty: "簡単" | "普通";
+  servings: number;
+  category: string;
+  wattage: number | null;
   imageUrl: string;
   tags: string[];
   ingredients: RecipeIngredient[];

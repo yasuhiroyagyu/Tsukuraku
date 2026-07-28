@@ -26,6 +26,8 @@ const toBaseQuantity = (quantity: number, unit: Unit): { quantity: number; famil
   if (unit === "g") return { quantity, family: "weight" };
   if (unit === "l") return { quantity: quantity * 1000, family: "volume" };
   if (unit === "ml") return { quantity, family: "volume" };
+  if (unit === "大さじ") return { quantity: quantity * 15, family: "volume" };
+  if (unit === "小さじ") return { quantity: quantity * 5, family: "volume" };
   return { quantity, family: unit };
 };
 
@@ -34,7 +36,7 @@ export const getMissingIngredients = (
   inventory: InventoryItem[],
 ) => {
   const available = new Set(inventory.filter((item) => item.hasItem).map((item) => item.ingredientId));
-  return required.filter((item) => !available.has(item.ingredientId));
+  return required.filter((item) => !item.isOptional && !available.has(item.ingredientId));
 };
 
 export const calculatePackagesRequired = (

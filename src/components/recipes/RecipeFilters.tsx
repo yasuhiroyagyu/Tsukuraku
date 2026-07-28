@@ -1,7 +1,7 @@
 import { SlidersHorizontal, X } from "lucide-react";
 import { Button } from "../common/Button";
 
-export const recipeFilterOptions = ["10分以内", "15分以内", "300円以内", "丼・ご飯", "麺", "肉料理", "洗い物が少ない"] as const;
+export const recipeFilterOptions = ["10分以内", "15分以内", "300円以内", "電子レンジ", "丼・ご飯", "麺", "副菜", "肉料理", "洗い物が少ない"] as const;
 
 export function RecipeFilters({ selected, onToggle, onClear }: { selected: string[]; onToggle: (filter: string) => void; onClear: () => void }) {
   return (
