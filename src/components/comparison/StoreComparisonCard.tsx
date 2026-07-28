@@ -9,7 +9,6 @@ import { PriceBreakdown } from "./PriceBreakdown";
 
 export function StoreComparisonCard({ comparison, onSelect }: { comparison: StoreComparison; onSelect: () => void }) {
   const knownAmount = comparison.items.reduce((sum, item) => sum + (item.purchasePrice ?? 0), 0);
-  const canSelect = comparison.missingPriceCount === 0;
 
   return (
     <Card className={`relative flex h-full flex-col overflow-hidden ${comparison.isCheapest ? "border-teal-500 ring-2 ring-teal-100" : ""}`}>
@@ -25,7 +24,7 @@ export function StoreComparisonCard({ comparison, onSelect }: { comparison: Stor
         </div>
         {comparison.missingPriceCount > 0 && <div className="mb-4"><MissingPriceAlert count={comparison.missingPriceCount} /></div>}
         <PriceBreakdown items={comparison.items} />
-        <Button fullWidth className="mt-5" onClick={onSelect} disabled={!canSelect}><ShoppingBasket size={17} />{canSelect ? "このスーパーを選ぶ" : "価格確認後に選択できます"}</Button>
+        <Button fullWidth className="mt-5" onClick={onSelect}><ShoppingBasket size={17} />このスーパーを選ぶ</Button>
       </div>
     </Card>
   );
