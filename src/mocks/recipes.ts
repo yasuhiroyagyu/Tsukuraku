@@ -1,9 +1,15 @@
 import type { Recipe, RecipeIngredient } from "../types";
 
-const ri = (ingredientId: string, quantity: number, unit: RecipeIngredient["unit"]): RecipeIngredient => ({
+const ri = (
+  ingredientId: string,
+  quantity: number,
+  unit: RecipeIngredient["unit"],
+  isOptional = false,
+): RecipeIngredient => ({
   ingredientId,
   quantity,
   unit,
+  ...(isOptional ? { isOptional: true } : {}),
 });
 
 const images = {
@@ -20,13 +26,28 @@ const recipe = (
   name: string,
   description: string,
   cookingTime: number,
-  estimatedCost: number,
+  estimatedCost: number | null,
   imageUrl: string,
   tags: string[],
   ingredients: RecipeIngredient[],
   instructions: string[],
   difficulty: Recipe["difficulty"] = "簡単",
-): Recipe => ({ id, name, description, cookingTime, estimatedCost, difficulty, imageUrl, tags, ingredients, instructions });
+  metadata: Partial<Pick<Recipe, "servings" | "category" | "wattage">> = {},
+): Recipe => ({
+  id,
+  name,
+  description,
+  cookingTime,
+  estimatedCost,
+  difficulty,
+  servings: metadata.servings ?? 1,
+  category: metadata.category ?? "その他",
+  wattage: metadata.wattage ?? null,
+  imageUrl,
+  tags,
+  ingredients,
+  instructions,
+});
 
 const rice = ri("rice", 200, "g");
 const soy = ri("soy-sauce", 15, "ml");
@@ -39,7 +60,9 @@ export const mockRecipes: Recipe[] = [
   recipe("yaki-udon", "焼きうどん", "冷蔵庫の野菜で作れる、もちもち時短メニュー。", 10, 220, images.noodles, ["10分以内", "麺", "洗い物が少ない"], [ri("udon", 1, "袋"), ri("pork-slice", 80, "g"), ri("cabbage", 100, "g"), ri("carrot", 0.5, "本"), soy, oil], ["具材を食べやすく切る。", "肉と野菜を炒める。", "うどんとしょうゆを加えて炒め合わせる。"]),
   recipe("fried-rice", "チャーハン", "卵とごはんでぱぱっと。香ばしい定番の時短飯。", 10, 180, images.bowl, ["10分以内", "丼・ご飯", "洗い物が少ない"], [rice, ri("egg", 2, "個"), ri("green-onion", 0.5, "本"), soy, ri("sesame-oil", 10, "ml")], ["ねぎを刻み、卵を溶く。", "卵、ごはんの順に強火で炒める。", "ねぎとしょうゆを加えて仕上げる。"]),
   recipe("omurice", "オムライス", "ケチャップライスをふんわり卵で包む喫茶店風。", 20, 280, images.bowl, ["300円以内", "丼・ご飯"], [rice, ri("egg", 2, "個"), ri("chicken-thigh", 80, "g"), ri("onion", 0.5, "個"), ri("ketchup", 30, "g"), oil], ["鶏肉と玉ねぎを炒める。", "ごはんとケチャップを加えて炒める。", "薄焼き卵で包む。"], "普通"),
-  recipe("soboro-don", "そぼろ丼", "甘辛そぼろと炒り卵の二色丼。作り置きにも。", 15, 250, images.bowl, ["15分以内", "丼・ご飯", "肉料理"], [ri("chicken-mince", 150, "g"), ri("egg", 2, "個"), rice, soy, ri("sugar", 10, "g"), ri("ginger", 5, "g")], ["鶏ひき肉を調味料と炒りつける。", "卵に砂糖を加えて炒り卵にする。", "ごはんに彩りよく盛る。"]),
+  recipe("soboro-don", "そぼろ丼", "甘辛い鶏そぼろを電子レンジだけで作る、1人分の手軽などんぶり。", 12, null, images.bowl, ["15分以内", "電子レンジ", "丼・ご飯", "肉料理", "洗い物が少ない"], [ri("rice", 200, "g"), ri("chicken-mince", 100, "g"), ri("soy-sauce", 1, "大さじ"), ri("sugar", 1, "小さじ"), ri("mirin", 1, "小さじ"), ri("ginger", 0.5, "小さじ", true)], ["耐熱容器に鶏ひき肉、しょうゆ、砂糖、みりん、しょうがを入れて混ぜる。", "ふんわりとラップをし、600Wで2分加熱する。", "一度取り出して、ひき肉をほぐすようによく混ぜる。", "再びラップをし、600Wで1分30秒加熱する。", "肉の赤い部分がなくなり、中心まで火が通っていることを確認し、ご飯の上に盛り付ける。"], "普通", { servings: 1, category: "ご飯もの", wattage: 600 }),
+  recipe("microwave-napolitan", "ナポリタン", "麺も具材もひとつの耐熱容器で仕上げる、電子レンジの定番パスタ。", 15, null, images.pasta, ["15分以内", "電子レンジ", "麺", "洗い物が少ない"], [ri("pasta", 100, "g"), ri("sausage", 2, "本"), ri("onion", 0.25, "個"), ri("green-pepper", 0.5, "個", true), ri("ketchup", 2, "大さじ"), ri("water", 250, "ml"), ri("oil", 1, "小さじ"), ri("salt", 1, "少々"), ri("pepper", 1, "少々", true)], ["玉ねぎ、ピーマン、ウインナーを食べやすい大きさに切る。", "深めの耐熱容器に半分に折ったスパゲッティ、水、塩、サラダ油を入れる。", "ラップをせず、袋に表示されたゆで時間より3分長く、600Wで加熱する。麺が硬い場合は追加加熱する。", "加熱後に水分が多く残っていれば、少しだけ捨てる。", "玉ねぎ、ピーマン、ウインナー、ケチャップを加えて混ぜる。", "ふんわりとラップをし、600Wで2分加熱して全体を混ぜる。", "好みでこしょうを加える。"], "普通", { servings: 1, category: "麺類", wattage: 600 }),
+  recipe("infinite-green-pepper", "無限ピーマン", "ツナのうま味でピーマンがたっぷり食べられる、電子レンジ副菜。", 7, null, images.veggie, ["10分以内", "電子レンジ", "副菜", "洗い物が少ない"], [ri("green-pepper", 3, "個"), ri("tuna", 0.5, "缶"), ri("chicken-stock", 0.5, "小さじ"), ri("sesame-oil", 1, "小さじ"), ri("pepper", 1, "少々", true)], ["ピーマンの種とへたを取り、細切りにする。", "耐熱容器にピーマン、ツナ、鶏がらスープの素、ごま油を入れて混ぜる。", "ふんわりとラップをし、600Wで2分加熱する。", "全体を混ぜ、好みでこしょうを加える。"], "簡単", { servings: 1, category: "副菜", wattage: 600 }),
   recipe("ginger-pork", "豚の生姜焼き", "しょうが香る甘辛だれ。ごはん泥棒の定番おかず。", 15, 300, images.meat, ["15分以内", "300円以内", "肉料理"], [ri("pork-slice", 180, "g"), ri("onion", 0.5, "個"), ri("ginger", 8, "g"), soy, ri("mirin", 15, "ml"), oil], ["豚肉と玉ねぎを炒める。", "しょうがと調味料を混ぜる。", "たれを加え、照りが出るまで絡める。"]),
   recipe("vegetable-stir-fry", "野菜炒め", "野菜をたっぷり食べられる、しゃきしゃきおかず。", 10, 190, images.veggie, ["10分以内", "300円以内", "洗い物が少ない"], [ri("cabbage", 150, "g"), ri("bean-sprout", 1, "袋"), ri("carrot", 0.5, "本"), ri("pork-slice", 80, "g"), oil, ri("salt", 3, "g")], ["材料を切る。", "肉、固い野菜の順に炒める。", "もやしを加え、塩こしょうで整える。"]),
   recipe("curry", "ひとり分カレー", "フライパンで煮込み時間を短縮した、お手軽カレー。", 25, 320, images.curry, ["丼・ご飯", "肉料理"], [rice, ri("pork-slice", 100, "g"), ri("onion", 1, "個"), ri("potato", 1, "個"), ri("carrot", 0.5, "本"), ri("curry-roux", 40, "g")], ["具材を小さめに切る。", "肉と野菜を炒め、水を加えて煮る。", "火を止めてルーを溶かし、再度煮込む。"], "普通"),

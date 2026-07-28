@@ -25,8 +25,20 @@ describe("価格比較ロジック", () => {
     expect(getMissingIngredients(oyakodon.ingredients, pantry).map((item) => item.ingredientId)).not.toContain("rice");
   });
 
+  it("お好みの食材は買い物対象から除外する", () => {
+    expect(getMissingIngredients(
+      [{ ingredientId: "pepper", quantity: 1, unit: "少々", isOptional: true }],
+      [],
+    )).toEqual([]);
+  });
+
   it("必要パック数を切り上げる", () => {
     expect(calculatePackagesRequired(150, "g", 100, "g")).toBe(2);
+  });
+
+  it("大さじ・小さじをmlへ換算する", () => {
+    expect(calculatePackagesRequired(2, "大さじ", 500, "ml")).toBe(1);
+    expect(calculatePackagesRequired(3, "小さじ", 10, "ml")).toBe(2);
   });
 
   it("単位が異なる商品は購入額を確定しない", () => {

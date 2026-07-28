@@ -2,7 +2,7 @@ import { ChefHat, Clock3, Coins, ListTree } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useMealPlanning } from "../../contexts/MealPlanningContext";
 import type { Recipe } from "../../types";
-import { formatPrice } from "../../utils/format";
+import { formatEstimatedCost } from "../../utils/format";
 import { Badge } from "../common/Badge";
 import { Button } from "../common/Button";
 import { Card } from "../common/Card";
@@ -24,7 +24,7 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
           <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-600">{recipe.description}</p>
           <dl className="mt-4 grid grid-cols-3 gap-2 text-center">
             <div className="rounded-xl bg-slate-50 px-1 py-2"><Clock3 className="mx-auto text-teal-700" size={16} /><dt className="sr-only">調理時間</dt><dd className="mt-1 text-xs font-bold">{recipe.cookingTime}分</dd></div>
-            <div className="rounded-xl bg-slate-50 px-1 py-2"><Coins className="mx-auto text-teal-700" size={16} /><dt className="sr-only">想定金額</dt><dd className="mt-1 text-xs font-bold">{formatPrice(recipe.estimatedCost)}</dd></div>
+            <div className="rounded-xl bg-slate-50 px-1 py-2"><Coins className="mx-auto text-teal-700" size={16} /><dt className="sr-only">想定金額</dt><dd className="mt-1 text-xs font-bold">{formatEstimatedCost(recipe.estimatedCost)}</dd></div>
             <div className="rounded-xl bg-slate-50 px-1 py-2"><ListTree className="mx-auto text-teal-700" size={16} /><dt className="sr-only">必要食材数</dt><dd className="mt-1 text-xs font-bold">{recipe.ingredients.length}品</dd></div>
           </dl>
         </div>

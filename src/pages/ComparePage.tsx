@@ -14,8 +14,13 @@ export function ComparePage() {
   const { selectedRecipeId, inventory, comparisons, selectStore } = useMealPlanning();
   const recipe = mockRecipes.find((item) => item.id === selectedRecipeId);
   if (!recipe || comparisons.length === 0) return <PageContainer><EmptyState title="比較する準備ができていません" description="料理を選び、家にある食材を確認すると、スーパーごとの購入金額を比べられます。" action={<Button onClick={() => navigate(recipe ? "/inventory" : "/recipes")}>{recipe ? "食材を確認する" : "料理を選ぶ"}</Button>} /></PageContainer>;
-  const homeCount = inventory.filter((item) => item.hasItem).length;
-  const missingCount = recipe.ingredients.length - homeCount;
+  const requiredIngredientIds = new Set(
+    recipe.ingredients.filter((item) => !item.isOptional).map((item) => item.ingredientId),
+  );
+  const homeCount = inventory.filter(
+    (item) => item.hasItem && requiredIngredientIds.has(item.ingredientId),
+  ).length;
+  const missingCount = requiredIngredientIds.size - homeCount;
   const choose = async (storeId: string) => {
     setSelectError(null);
     try {
