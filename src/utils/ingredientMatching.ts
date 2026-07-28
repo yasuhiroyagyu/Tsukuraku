@@ -2,7 +2,7 @@ import { ingredientAliases } from "../mocks/ingredientAliases";
 import { mockIngredients } from "../mocks/ingredients";
 
 const normalize = (value: string) =>
-  value.normalize("NFKC").toLocaleLowerCase("ja-JP").replace(/[\s　]+/g, "");
+  value.normalize("NFKC").toLocaleLowerCase("ja-JP").replace(/[\s\u3000]+/g, "");
 
 const candidates = [
   ...mockIngredients.map((ingredient) => ({
