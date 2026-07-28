@@ -105,6 +105,7 @@ export type ShoppingListItem = {
   quantityLabel: string;
   price: number | null;
   checked: boolean;
+  isManual?: boolean;
 };
 
 export type MealPlanningState = {
