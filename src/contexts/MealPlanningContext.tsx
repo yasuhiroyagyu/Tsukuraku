@@ -3,7 +3,7 @@ import { buildShoppingList, calculateStoreComparisons } from "../features/compar
 import { mockIngredients } from "../mocks/ingredients";
 import { flyerRepository } from "../repositories/flyerRepository";
 import { storeRepository } from "../repositories/storeRepository";
-import type { InventoryItem, MealPlanningState, Recipe, StoreComparison } from "../types";
+import type { InventoryItem, MealPlanningState, Recipe, ShoppingListItem, StoreComparison } from "../types";
 
 const storageKey = "tsukuraku-meal-plan";
 const initialState: MealPlanningState = {
@@ -21,12 +21,15 @@ const loadState = (): MealPlanningState => {
   catch { return initialState; }
 };
 
+type ManualShoppingItem = Pick<ShoppingListItem, "name" | "quantityLabel" | "price">;
+
 type MealPlanningContextValue = MealPlanningState & {
   selectRecipe: (recipe: Recipe) => void;
   setInventoryItem: (ingredientId: string, hasItem: boolean) => void;
   setAllInventory: (items: InventoryItem[]) => void;
   compareStores: (recipe: Recipe) => Promise<StoreComparison[]>;
   selectStore: (storeId: string) => Promise<void>;
+  addShoppingItem: (item: ManualShoppingItem) => void;
   toggleShoppingItem: (id: string) => void;
   resetPlan: () => void;
 };
@@ -92,6 +95,24 @@ export function MealPlanningProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const addShoppingItem = useCallback((item: ManualShoppingItem) => {
+    setState((current) => ({
+      ...current,
+      shoppingList: [
+        ...current.shoppingList,
+        {
+          id: "manual-" + Date.now() + "-" + Math.random().toString(36).slice(2),
+          ingredientId: "manual",
+          name: item.name,
+          quantityLabel: item.quantityLabel,
+          price: item.price,
+          checked: false,
+          isManual: true,
+        },
+      ],
+    }));
+  }, []);
+
   const toggleShoppingItem = useCallback((id: string) => {
     setState((current) => ({
       ...current,
@@ -107,9 +128,10 @@ export function MealPlanningProvider({ children }: { children: ReactNode }) {
     setAllInventory,
     compareStores,
     selectStore,
+    addShoppingItem,
     toggleShoppingItem,
     resetPlan,
-  }), [state, selectRecipe, setInventoryItem, setAllInventory, compareStores, selectStore, toggleShoppingItem, resetPlan]);
+  }), [state, selectRecipe, setInventoryItem, setAllInventory, compareStores, selectStore, addShoppingItem, toggleShoppingItem, resetPlan]);
 
   return <MealPlanningContext.Provider value={value}>{children}</MealPlanningContext.Provider>;
 }
