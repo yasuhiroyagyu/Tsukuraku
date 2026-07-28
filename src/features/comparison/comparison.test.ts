@@ -89,6 +89,20 @@ describe("価格比較ロジック", () => {
     expect(chicken?.purchasePrice).toBe(270);
   });
 
+  it("価格不明の商品も買い物リストへ残す", () => {
+    const comparison = calculateStoreComparisons(mockStores, oyakodon.ingredients, pantry, mockFlyerItems)
+      .find((item) => item.store.id === "lopia");
+    if (!comparison) throw new Error("ロピアの比較結果が必要です");
+
+    const list = buildShoppingList(comparison, mockFlyerItems, new Map([["egg", "卵"]]));
+    expect(list).toHaveLength(3);
+    expect(list.find((item) => item.ingredientId === "egg")).toMatchObject({
+      name: "卵",
+      quantityLabel: "必要 2個",
+      price: null,
+    });
+  });
+
   it("すべて家にある場合は買い物リストが空になる", () => {
     const allAvailable = oyakodon.ingredients.map((item) => ({ ingredientId: item.ingredientId, hasItem: true }));
     const [comparison] = calculateStoreComparisons(mockStores, oyakodon.ingredients, allAvailable, mockFlyerItems);
