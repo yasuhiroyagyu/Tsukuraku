@@ -103,7 +103,7 @@ export type ShoppingListItem = {
   ingredientId: string;
   name: string;
   quantityLabel: string;
-  price: number;
+  price: number | null;
   checked: boolean;
 };
 
