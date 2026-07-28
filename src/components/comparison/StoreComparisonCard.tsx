@@ -13,6 +13,13 @@ export function StoreComparisonCard({ comparison, onSelect }: { comparison: Stor
   return (
     <Card className={`relative flex h-full flex-col overflow-hidden ${comparison.isCheapest ? "border-teal-500 ring-2 ring-teal-100" : ""}`}>
       {comparison.isCheapest && <div className="flex items-center justify-center gap-1 bg-teal-700 py-2 text-xs font-black text-white"><Sparkles size={15} />価格確定店舗の中で最安</div>}
+      {comparison.store.imageUrl && (
+        <img
+          src={comparison.store.imageUrl}
+          alt={`${comparison.store.name} ${comparison.store.branchName}の店舗`}
+          className="h-40 w-full object-cover"
+        />
+      )}
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-start justify-between gap-3">
           <div><p className="text-xs font-bold text-slate-500">{comparison.store.name}</p><h2 className="mt-0.5 text-lg font-black text-ink">{comparison.store.branchName}</h2><p className="mt-1 flex items-center gap-1 text-xs text-slate-500"><MapPin size={13} />筑波大学から約{comparison.store.distanceKm}km</p></div>

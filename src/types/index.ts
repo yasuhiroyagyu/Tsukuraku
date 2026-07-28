@@ -32,6 +32,7 @@ export type Unit =
 
 export type Store = {
   id: string;
+  imageUrl?: string;
   name: string;
   branchName: string;
   address: string;
