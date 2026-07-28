@@ -31,20 +31,20 @@ export const calculatePackagesRequired = (
   packageQuantity: number,
   packageUnit: Unit,
 ): number | null => {
-  if (packageQuantity <= 0) return null;
+  if (requiredQuantity < 0 || packageQuantity <= 0) return null;
+
   const required = toBaseQuantity(requiredQuantity, requiredUnit);
   const packageSize = toBaseQuantity(packageQuantity, packageUnit);
   if (required.family !== packageSize.family) return null;
+
   return Math.ceil(required.quantity / packageSize.quantity);
 };
 
-const compareItem = (required: RecipeIngredient, flyerItem?: FlyerItem): StoreComparisonItem => {
-  if (
-    !flyerItem ||
-    flyerItem.price === null ||
-    flyerItem.packageQuantity === null ||
-    flyerItem.packageUnit === null
-  ) {
+const toComparisonItem = (
+  required: RecipeIngredient,
+  flyerItem?: FlyerItem,
+): StoreComparisonItem => {
+  if (!flyerItem || flyerItem.packageQuantity === null || flyerItem.packageUnit === null) {
     return {
       ingredientId: required.ingredientId,
       flyerItemId: flyerItem?.id ?? null,
@@ -62,15 +62,33 @@ const compareItem = (required: RecipeIngredient, flyerItem?: FlyerItem): StoreCo
     flyerItem.packageQuantity,
     flyerItem.packageUnit,
   );
+
   return {
     ingredientId: required.ingredientId,
     flyerItemId: flyerItem.id,
     requiredQuantity: required.quantity,
     requiredUnit: required.unit,
     packagesRequired,
-    purchasePrice: packagesRequired === null ? null : packagesRequired * flyerItem.price,
-    isPriceUnknown: packagesRequired === null,
+    purchasePrice: flyerItem.price === null || packagesRequired === null
+      ? null
+      : packagesRequired * flyerItem.price,
+    isPriceUnknown: flyerItem.price === null || packagesRequired === null,
   };
+};
+
+const compareItem = (
+  required: RecipeIngredient,
+  flyerItems: FlyerItem[],
+): StoreComparisonItem => {
+  const candidates = flyerItems
+    .filter((item) => item.ingredientId === required.ingredientId && item.status === "published")
+    .map((item) => toComparisonItem(required, item));
+
+  const pricedCandidates = candidates
+    .filter((item) => item.purchasePrice !== null)
+    .sort((left, right) => (left.purchasePrice as number) - (right.purchasePrice as number));
+
+  return pricedCandidates[0] ?? candidates[0] ?? toComparisonItem(required);
 };
 
 export const calculateStoreComparisons = (
@@ -82,11 +100,10 @@ export const calculateStoreComparisons = (
   const missing = getMissingIngredients(required, inventory);
   const comparisons = stores.map((store) => {
     const storeItems = flyerItems.filter((item) => item.storeId === store.id);
-    const items = missing.map((needed) =>
-      compareItem(needed, storeItems.find((item) => item.ingredientId === needed.ingredientId)),
-    );
+    const items = missing.map((needed) => compareItem(needed, storeItems));
     const missingPriceCount = items.filter((item) => item.isPriceUnknown).length;
     const knownTotal = items.reduce((sum, item) => sum + (item.purchasePrice ?? 0), 0);
+
     return {
       store,
       items,
@@ -98,7 +115,10 @@ export const calculateStoreComparisons = (
   });
 
   const priced = comparisons.filter((item) => item.totalPrice !== null);
-  const cheapestTotal = priced.length > 0 ? Math.min(...priced.map((item) => item.totalPrice as number)) : null;
+  const cheapestTotal = priced.length > 0
+    ? Math.min(...priced.map((item) => item.totalPrice as number))
+    : null;
+
   return comparisons.map((item) => ({
     ...item,
     isCheapest: cheapestTotal !== null && item.totalPrice === cheapestTotal,
@@ -110,15 +130,21 @@ export const buildShoppingList = (
   flyerItems: FlyerItem[],
   ingredientNames: Map<string, string>,
 ): ShoppingListItem[] =>
-  comparison.items.flatMap((item) => {
+  comparison.items.map((item) => {
     const flyerItem = flyerItems.find((candidate) => candidate.id === item.flyerItemId);
-    if (!flyerItem || item.purchasePrice === null || item.packagesRequired === null) return [];
-    return [{
-      id: `${comparison.store.id}-${item.ingredientId}`,
+    const quantityLabel = flyerItem
+      && flyerItem.packageQuantity !== null
+      && flyerItem.packageUnit !== null
+      && item.packagesRequired !== null
+      ? flyerItem.packageQuantity + flyerItem.packageUnit + "入り × " + item.packagesRequired
+      : "必要 " + item.requiredQuantity + item.requiredUnit;
+
+    return {
+      id: comparison.store.id + "-" + item.ingredientId,
       ingredientId: item.ingredientId,
-      name: ingredientNames.get(item.ingredientId) ?? flyerItem.productNameRaw,
-      quantityLabel: `${flyerItem.packageQuantity}${flyerItem.packageUnit}入り × ${item.packagesRequired}`,
+      name: ingredientNames.get(item.ingredientId) ?? flyerItem?.productNameRaw ?? item.ingredientId,
+      quantityLabel,
       price: item.purchasePrice,
       checked: false,
-    }];
+    };
   });
