@@ -14,7 +14,18 @@ export type FlyerItemStatus =
   | "rejected"
   | "published";
 
-export type Unit = "g" | "kg" | "ml" | "l" | "個" | "本" | "袋" | "パック";
+export type Unit =
+  | "g"
+  | "kg"
+  | "ml"
+  | "l"
+  | "個"
+  | "本"
+  | "袋"
+  | "パック"
+  | "缶"
+  | "枚"
+  | "食";
 
 export type Store = {
   id: string;
