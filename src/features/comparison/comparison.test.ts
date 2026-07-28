@@ -5,6 +5,7 @@ import { mockStores } from "../../mocks/stores";
 import type { FlyerItem, InventoryItem } from "../../types";
 import {
   buildShoppingList,
+  aggregateRecipeIngredients,
   calculatePackagesRequired,
   calculateStoreComparisons,
   getMissingIngredients,
@@ -21,6 +22,18 @@ const pantry: InventoryItem[] = [
 ];
 
 describe("価格比較ロジック", () => {
+  it("複数の料理で重複する食材の必要量を合算する", () => {
+    const secondRecipe = mockRecipes.find((recipe) => recipe.id !== "oyakodon");
+    if (!secondRecipe) throw new Error("比較用のレシピが必要です");
+
+    const ingredients = aggregateRecipeIngredients([oyakodon, secondRecipe]);
+    const expectedEggQuantity = (oyakodon.ingredients.find((item) => item.ingredientId === "egg")?.quantity ?? 0)
+      + (secondRecipe.ingredients.find((item) => item.ingredientId === "egg")?.quantity ?? 0);
+    const egg = ingredients.find((item) => item.ingredientId === "egg");
+
+    if (expectedEggQuantity > 0) expect(egg?.quantity).toBe(expectedEggQuantity);
+  });
+
   it("家にある食材を除外する", () => {
     expect(getMissingIngredients(oyakodon.ingredients, pantry).map((item) => item.ingredientId)).not.toContain("rice");
   });

@@ -126,10 +126,11 @@ export type ShoppingListItem = {
   quantityLabel: string;
   price: number | null;
   checked: boolean;
+  isManual?: boolean;
 };
 
 export type MealPlanningState = {
-  selectedRecipeId: string | null;
+  selectedRecipeIds: string[];
   inventory: InventoryItem[];
   comparisons: StoreComparison[];
   selectedStoreId: string | null;

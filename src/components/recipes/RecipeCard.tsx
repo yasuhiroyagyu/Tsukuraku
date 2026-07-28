@@ -1,4 +1,4 @@
-import { ChefHat, Clock3, Coins, ListTree } from "lucide-react";
+import { Check, Clock3, Coins, ListTree, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useMealPlanning } from "../../contexts/MealPlanningContext";
 import type { Recipe } from "../../types";
@@ -9,8 +9,12 @@ import { Card } from "../common/Card";
 
 export function RecipeCard({ recipe }: { recipe: Recipe }) {
   const navigate = useNavigate();
-  const { selectRecipe } = useMealPlanning();
-  const choose = () => { selectRecipe(recipe); navigate("/inventory"); };
+  const { selectedRecipeIds, addRecipe, removeRecipe } = useMealPlanning();
+  const isSelected = selectedRecipeIds.includes(recipe.id);
+  const toggleCart = () => {
+    if (isSelected) removeRecipe(recipe.id);
+    else addRecipe(recipe);
+  };
 
   return (
     <Card className="group flex h-full flex-col overflow-hidden">
@@ -28,7 +32,7 @@ export function RecipeCard({ recipe }: { recipe: Recipe }) {
             <div className="rounded-xl bg-slate-50 px-1 py-2"><ListTree className="mx-auto text-teal-700" size={16} /><dt className="sr-only">必要食材数</dt><dd className="mt-1 text-xs font-bold">{recipe.ingredients.length}品</dd></div>
           </dl>
         </div>
-        <Button fullWidth className="mt-4" onClick={choose}><ChefHat size={17} />この料理を選ぶ</Button>
+        <Button fullWidth variant={isSelected ? "secondary" : "primary"} className="mt-4" onClick={toggleCart}>{isSelected ? <Check size={17} /> : <Plus size={17} />}{isSelected ? "献立かごに追加済み" : "献立かごに追加"}</Button>
       </div>
     </Card>
   );
