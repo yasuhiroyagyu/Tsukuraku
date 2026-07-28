@@ -6,7 +6,7 @@ import { Button } from "../components/common/Button";
 import { EmptyState } from "../components/common/EmptyState";
 import { PageContainer } from "../components/layout/PageContainer";
 import { useMealPlanning } from "../contexts/MealPlanningContext";
-import { aggregateRecipeIngredients } from "../features/comparison/comparison";
+import { aggregateRecipeIngredients, getTopStoreComparisons } from "../features/comparison/comparison";
 import { canUseCurrentLocationForStore, getStoreTravelTime } from "../features/location/travelTime";
 import { useTravelTimes } from "../hooks/useTravelTimes";
 import { mockRecipes } from "../mocks/recipes";
@@ -21,6 +21,7 @@ export function ComparePage() {
   if (recipes.length === 0 || comparisons.length === 0) return <PageContainer><EmptyState title="比較する準備ができていません" description="料理を選び、家にある食材を確認すると、スーパーごとの購入金額を比べられます。" action={<Button onClick={() => navigate(recipes.length > 0 ? "/inventory" : "/recipes")}>{recipes.length > 0 ? "食材を確認する" : "料理を選ぶ"}</Button>} /></PageContainer>;
   const homeCount = requiredIngredients.filter((item) => inventory.find((stored) => stored.ingredientId === item.ingredientId)?.hasItem).length;
   const missingCount = requiredIngredients.length - homeCount;
+  const topComparisons = getTopStoreComparisons(comparisons);
   const choose = async (storeId: string) => {
     setSelectError(null);
     try {
@@ -39,7 +40,7 @@ export function ComparePage() {
         {locationStatus === "fallback" && <Button variant="ghost" onClick={retryLocation}>位置情報を再取得</Button>}
       </div>
       {selectError && <p className="mb-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm font-bold text-rose-700" role="alert">{selectError}</p>}
-      {missingCount === 0 ? <EmptyState title="買い足す食材はありません" description="必要な食材はすべて家にあります。そのまま料理を始められます。" action={<div className="flex items-center gap-2 font-bold text-teal-700"><CheckCircle2 />準備OK！</div>} /> : <div className="grid items-start gap-5 lg:grid-cols-3">{comparisons.map((comparison) => <StoreComparisonCard key={comparison.store.id} comparison={comparison} travelTime={getStoreTravelTime(comparison.store, position)} usesCurrentLocation={locationStatus === "current" && canUseCurrentLocationForStore(comparison.store)} onSelect={() => { void choose(comparison.store.id); }} />)}</div>}
+      {missingCount === 0 ? <EmptyState title="買い足す食材はありません" description="必要な食材はすべて家にあります。そのまま料理を始められます。" action={<div className="flex items-center gap-2 font-bold text-teal-700"><CheckCircle2 />準備OK！</div>} /> : <section><p className="mb-3 text-sm font-bold text-teal-800">価格が確定している店舗を優先し、お得な上位3店舗を表示しています。</p><div className="grid items-start gap-5 lg:grid-cols-3">{topComparisons.map((comparison) => <StoreComparisonCard key={comparison.store.id} comparison={comparison} travelTime={getStoreTravelTime(comparison.store, position)} usesCurrentLocation={locationStatus === "current" && canUseCurrentLocationForStore(comparison.store)} onSelect={() => { void choose(comparison.store.id); }} />)}</div></section>}
     </PageContainer>
   );
 }

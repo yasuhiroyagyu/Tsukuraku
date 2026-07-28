@@ -139,6 +139,33 @@ export const calculateStoreComparisons = (
   }));
 };
 
+const compareDistanceThenId = (left: StoreComparison, right: StoreComparison): number => {
+  const distanceDifference = left.store.distanceKm - right.store.distanceKm;
+  if (distanceDifference !== 0) return distanceDifference;
+  return left.store.id.localeCompare(right.store.id);
+};
+
+export const rankStoreComparisons = (comparisons: StoreComparison[]): StoreComparison[] =>
+  [...comparisons].sort((left, right) => {
+    if (left.totalPrice !== null && right.totalPrice !== null) {
+      const priceDifference = left.totalPrice - right.totalPrice;
+      return priceDifference !== 0 ? priceDifference : compareDistanceThenId(left, right);
+    }
+
+    if (left.totalPrice !== null) return -1;
+    if (right.totalPrice !== null) return 1;
+
+    const missingPriceDifference = left.missingPriceCount - right.missingPriceCount;
+    return missingPriceDifference !== 0
+      ? missingPriceDifference
+      : compareDistanceThenId(left, right);
+  });
+
+export const getTopStoreComparisons = (
+  comparisons: StoreComparison[],
+  limit = 3,
+): StoreComparison[] => rankStoreComparisons(comparisons).slice(0, Math.max(0, Math.floor(limit)));
+
 export const buildShoppingList = (
   comparison: StoreComparison,
   flyerItems: FlyerItem[],
