@@ -2,12 +2,14 @@ import { describe, expect, it } from "vitest";
 import { mockFlyerItems } from "../../mocks/flyerItems";
 import { mockRecipes } from "../../mocks/recipes";
 import { mockStores } from "../../mocks/stores";
-import type { FlyerItem, InventoryItem } from "../../types";
+import type { FlyerItem, InventoryItem, StoreComparison } from "../../types";
 import {
   buildShoppingList,
   calculatePackagesRequired,
   calculateStoreComparisons,
+  getTopStoreComparisons,
   getMissingIngredients,
+  rankStoreComparisons,
 } from "./comparison";
 
 const oyakodon = mockRecipes.find((recipe) => recipe.id === "oyakodon");
@@ -19,6 +21,22 @@ const pantry: InventoryItem[] = [
   { ingredientId: "mirin", hasItem: true },
   { ingredientId: "dashi", hasItem: true },
 ];
+
+const legacyStores = mockStores.filter((store) => ["kasumi", "trial", "lopia"].includes(store.id));
+
+const comparisonFixture = (
+  id: string,
+  totalPrice: number | null,
+  missingPriceCount: number,
+  distanceKm: number,
+): StoreComparison => ({
+  store: { id, name: id, branchName: id, address: "", distanceKm },
+  items: [],
+  totalPrice,
+  missingPriceCount,
+  availableItemCount: 0,
+  isCheapest: false,
+});
 
 describe("価格比較ロジック", () => {
   it("家にある食材を除外する", () => {
@@ -57,8 +75,67 @@ describe("価格比較ロジック", () => {
   });
 
   it("価格が揃う店舗の中から最安を決める", () => {
-    const result = calculateStoreComparisons(mockStores, oyakodon.ingredients, pantry, mockFlyerItems);
+    const result = calculateStoreComparisons(legacyStores, oyakodon.ingredients, pantry, mockFlyerItems);
     expect(result.find((item) => item.isCheapest)?.store.id).toBe("trial");
+  });
+
+  it("価格確定店舗を価格・距離・ID順に並べて上位3店舗だけ返す", () => {
+    const comparisons = [
+      comparisonFixture("unknown", null, 1, 1),
+      comparisonFixture("same-z", 500, 0, 2),
+      comparisonFixture("cheapest", 400, 0, 5),
+      comparisonFixture("same-a", 500, 0, 2),
+      comparisonFixture("same-near", 500, 0, 1),
+    ];
+    const originalOrder = comparisons.map((comparison) => comparison.store.id);
+
+    const result = getTopStoreComparisons(comparisons);
+
+    expect(result).toHaveLength(3);
+    expect(result.map((comparison) => comparison.store.id)).toEqual([
+      "cheapest",
+      "same-near",
+      "same-a",
+    ]);
+    expect(comparisons.map((comparison) => comparison.store.id)).toEqual(originalOrder);
+  });
+
+  it("追加店舗を含む比較から実際の価格上位3店舗を選ぶ", () => {
+    const comparisons = calculateStoreComparisons(
+      mockStores,
+      oyakodon.ingredients,
+      pantry,
+      mockFlyerItems,
+    );
+
+    expect(getTopStoreComparisons(comparisons).map((comparison) => comparison.store.id)).toEqual([
+      "taiyo-gakuen-no-mori",
+      "trial",
+      "tairaya-tsukuba-oho",
+    ]);
+  });
+
+  it("価格不明店舗を確定店舗より後ろで欠損数・距離・ID順に並べる", () => {
+    const comparisons = [
+      comparisonFixture("unknown-b", null, 1, 3),
+      comparisonFixture("unknown-many", null, 2, 1),
+      comparisonFixture("unknown-a", null, 1, 3),
+      comparisonFixture("unknown-near", null, 1, 2),
+      comparisonFixture("priced", 900, 0, 9),
+    ];
+    const originalOrder = comparisons.map((comparison) => comparison.store.id);
+
+    const result = rankStoreComparisons(comparisons);
+
+    expect(result.map((comparison) => comparison.store.id)).toEqual([
+      "priced",
+      "unknown-near",
+      "unknown-a",
+      "unknown-b",
+      "unknown-many",
+    ]);
+    expect(result).not.toBe(comparisons);
+    expect(comparisons.map((comparison) => comparison.store.id)).toEqual(originalOrder);
   });
 
   it("同じ食材では必要パック数を含めた購入額が最小の商品を選ぶ", () => {

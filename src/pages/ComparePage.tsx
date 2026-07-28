@@ -6,6 +6,7 @@ import { Button } from "../components/common/Button";
 import { EmptyState } from "../components/common/EmptyState";
 import { PageContainer } from "../components/layout/PageContainer";
 import { useMealPlanning } from "../contexts/MealPlanningContext";
+import { getTopStoreComparisons } from "../features/comparison/comparison";
 import { mockRecipes } from "../mocks/recipes";
 
 export function ComparePage() {
@@ -21,6 +22,7 @@ export function ComparePage() {
     (item) => item.hasItem && requiredIngredientIds.has(item.ingredientId),
   ).length;
   const missingCount = requiredIngredientIds.size - homeCount;
+  const topComparisons = getTopStoreComparisons(comparisons);
   const choose = async (storeId: string) => {
     setSelectError(null);
     try {
@@ -35,7 +37,7 @@ export function ComparePage() {
       <div className="mb-7"><p className="eyebrow">COMPARE STORES</p><h1 className="mt-2 text-3xl font-black tracking-tight">どこで買うのがお得？</h1><p className="mt-2 text-sm text-slate-600">チラシの掲載価格から、必要なパック数まで計算しました。</p></div>
       <div className="mb-7 grid gap-2 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-3"><div className="flex items-center gap-3 rounded-xl bg-slate-50 p-3"><ChefHat className="text-teal-700" size={21} /><div><p className="text-xs text-slate-500">選択中の料理</p><p className="font-black">{recipe.name}</p></div></div><div className="flex items-center gap-3 rounded-xl bg-slate-50 p-3"><ShoppingBasket className="text-amber-600" size={21} /><div><p className="text-xs text-slate-500">買う必要あり</p><p className="font-black">{missingCount}品</p></div></div><div className="flex items-center gap-3 rounded-xl bg-slate-50 p-3"><Home className="text-blue-600" size={21} /><div><p className="text-xs text-slate-500">家にある</p><p className="font-black">{homeCount}品</p></div></div></div>
       {selectError && <p className="mb-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm font-bold text-rose-700" role="alert">{selectError}</p>}
-      {missingCount === 0 ? <EmptyState title="買い足す食材はありません" description="必要な食材はすべて家にあります。そのまま料理を始められます。" action={<div className="flex items-center gap-2 font-bold text-teal-700"><CheckCircle2 />準備OK！</div>} /> : <div className="grid items-start gap-5 lg:grid-cols-3">{comparisons.map((comparison) => <StoreComparisonCard key={comparison.store.id} comparison={comparison} onSelect={() => { void choose(comparison.store.id); }} />)}</div>}
+      {missingCount === 0 ? <EmptyState title="買い足す食材はありません" description="必要な食材はすべて家にあります。そのまま料理を始められます。" action={<div className="flex items-center gap-2 font-bold text-teal-700"><CheckCircle2 />準備OK！</div>} /> : <section><p className="mb-3 text-sm font-bold text-teal-800">価格が確定している店舗を優先し、お得な上位3店舗を表示しています。</p><div className="grid items-start gap-5 lg:grid-cols-3">{topComparisons.map((comparison) => <StoreComparisonCard key={comparison.store.id} comparison={comparison} onSelect={() => { void choose(comparison.store.id); }} />)}</div></section>}
     </PageContainer>
   );
 }

@@ -6,7 +6,7 @@ import { mockRecipes } from "../mocks/recipes";
 const steps = [
   { icon: ChefHat, title: "料理を選ぶ", detail: "安くて簡単な20のレシピから" },
   { icon: ListChecks, title: "家にあるもの", detail: "チェックするだけで不足を計算" },
-  { icon: Store, title: "スーパー比較", detail: "筑大周辺3店舗の価格を比較" },
+  { icon: Store, title: "スーパー比較", detail: "筑大周辺の店舗からお得な上位3店を比較" },
   { icon: ShoppingBasket, title: "買い物へ", detail: "買うものをリストで確認" },
 ];
 
