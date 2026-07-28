@@ -5,6 +5,7 @@ import { Button } from "../components/common/Button";
 import { EmptyState } from "../components/common/EmptyState";
 import { PageContainer } from "../components/layout/PageContainer";
 import { useMealPlanning } from "../contexts/MealPlanningContext";
+import { aggregateRecipeIngredients } from "../features/comparison/comparison";
 import { ingredientMap } from "../mocks/ingredients";
 import { mockRecipes } from "../mocks/recipes";
 import { formatQuantity } from "../utils/format";
@@ -13,17 +14,18 @@ export function InventoryPage() {
   const navigate = useNavigate();
   const [comparing, setComparing] = useState(false);
   const [compareError, setCompareError] = useState<string | null>(null);
-  const { selectedRecipeId, inventory, setInventoryItem, setAllInventory, compareStores } = useMealPlanning();
-  const recipe = mockRecipes.find((item) => item.id === selectedRecipeId);
-  if (!recipe) return <PageContainer><EmptyState title="先に料理を選びましょう" description="料理を選ぶと、必要な食材をここで確認できます。" action={<Button onClick={() => navigate("/recipes")}>料理を選ぶ</Button>} /></PageContainer>;
+  const { selectedRecipeIds, inventory, setInventoryItem, setAllInventory, compareStores } = useMealPlanning();
+  const recipes = mockRecipes.filter((item) => selectedRecipeIds.includes(item.id));
+  const requiredIngredients = aggregateRecipeIngredients(recipes);
+  if (recipes.length === 0) return <PageContainer><EmptyState title="先に料理を選びましょう" description="料理を献立かごに追加すると、必要な食材をまとめて確認できます。" action={<Button onClick={() => navigate("/recipes")}>料理を選ぶ</Button>} /></PageContainer>;
   const setSeasonings = () => setAllInventory(inventory.map((item) => ({ ...item, hasItem: ingredientMap.get(item.ingredientId)?.isSeasoning ? true : item.hasItem })));
-  const hasCount = inventory.filter((item) => item.hasItem).length;
+  const hasCount = requiredIngredients.filter((item) => inventory.find((stored) => stored.ingredientId === item.ingredientId)?.hasItem).length;
   const proceed = async () => {
     if (comparing) return;
     setComparing(true);
     setCompareError(null);
     try {
-      await compareStores(recipe);
+      await compareStores(recipes);
       navigate("/compare");
     } catch (reason: unknown) {
       setCompareError(reason instanceof Error ? reason.message : "価格情報の取得に失敗しました");
@@ -34,11 +36,11 @@ export function InventoryPage() {
   return (
     <PageContainer>
       <div className="mx-auto max-w-3xl">
-        <p className="eyebrow">CHECK YOUR PANTRY</p><h1 className="mt-2 text-3xl font-black tracking-tight">家にあるものは？</h1><p className="mt-2 text-sm leading-6 text-slate-600"><strong className="text-ink">{recipe.name}</strong>に必要な食材です。あるものにチェックを入れてください。</p>
+        <p className="eyebrow">CHECK YOUR PANTRY</p><h1 className="mt-2 text-3xl font-black tracking-tight">家にあるものは？</h1><p className="mt-2 text-sm leading-6 text-slate-600"><strong className="text-ink">{recipes.map((recipe) => recipe.name).join("・")}</strong>に必要な食材です。あるものにチェックを入れてください。</p><button type="button" className="mt-2 text-sm font-bold text-teal-700 underline" onClick={() => navigate("/recipes")}>献立かごを変更する</button>
         <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
-          <div className="flex items-center justify-between border-b bg-teal-50 px-5 py-4"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-white text-teal-700"><PackageOpen size={21} /></span><div><p className="text-xs font-bold text-teal-700">必要な食材</p><p className="font-black">{recipe.ingredients.length}品中 {hasCount}品が家にある</p></div></div><span className="text-2xl font-black text-teal-800">{Math.round((hasCount / recipe.ingredients.length) * 100)}%</span></div>
+          <div className="flex items-center justify-between border-b bg-teal-50 px-5 py-4"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-white text-teal-700"><PackageOpen size={21} /></span><div><p className="text-xs font-bold text-teal-700">必要な食材</p><p className="font-black">{requiredIngredients.length}品中 {hasCount}品が家にある</p></div></div><span className="text-2xl font-black text-teal-800">{Math.round((hasCount / requiredIngredients.length) * 100)}%</span></div>
           <div className="divide-y divide-slate-100">
-            {recipe.ingredients.map((needed) => { const info = ingredientMap.get(needed.ingredientId); const checked = inventory.find((item) => item.ingredientId === needed.ingredientId)?.hasItem ?? false; return <label key={needed.ingredientId} className={`flex cursor-pointer items-center gap-4 px-5 py-4 transition hover:bg-slate-50 ${checked ? "bg-teal-50/40" : ""}`}><input type="checkbox" checked={checked} onChange={(event) => setInventoryItem(needed.ingredientId, event.target.checked)} /><span className="min-w-0 flex-1"><span className="block font-bold text-slate-800">{info?.name ?? needed.ingredientId}</span><span className="mt-0.5 block text-xs text-slate-500">必要量 {formatQuantity(needed.quantity, needed.unit)}{info?.isSeasoning ? "・調味料" : ""}</span></span>{checked && <span className="flex items-center gap-1 text-xs font-bold text-teal-700"><CheckCheck size={15} />家にある</span>}</label>; })}
+            {requiredIngredients.map((needed) => { const info = ingredientMap.get(needed.ingredientId); const checked = inventory.find((item) => item.ingredientId === needed.ingredientId)?.hasItem ?? false; return <label key={`${needed.ingredientId}-${needed.unit}`} className={`flex cursor-pointer items-center gap-4 px-5 py-4 transition hover:bg-slate-50 ${checked ? "bg-teal-50/40" : ""}`}><input type="checkbox" checked={checked} onChange={(event) => setInventoryItem(needed.ingredientId, event.target.checked)} /><span className="min-w-0 flex-1"><span className="block font-bold text-slate-800">{info?.name ?? needed.ingredientId}</span><span className="mt-0.5 block text-xs text-slate-500">必要量 {formatQuantity(needed.quantity, needed.unit)}{info?.isSeasoning ? "・調味料" : ""}</span></span>{checked && <span className="flex items-center gap-1 text-xs font-bold text-teal-700"><CheckCheck size={15} />家にある</span>}</label>; })}
           </div>
         </div>
         <div className="mt-4 grid gap-2 sm:grid-cols-2"><Button variant="ghost" onClick={() => setAllInventory(inventory.map((item) => ({ ...item, hasItem: false }))) }><PackageOpen size={17} />すべて家にない</Button><Button variant="secondary" onClick={setSeasonings}><Sparkles size={17} />調味料は家にある</Button></div>
