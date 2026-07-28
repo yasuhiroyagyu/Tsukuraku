@@ -109,7 +109,7 @@ export type ShoppingListItem = {
 };
 
 export type MealPlanningState = {
-  selectedRecipeId: string | null;
+  selectedRecipeIds: string[];
   inventory: InventoryItem[];
   comparisons: StoreComparison[];
   selectedStoreId: string | null;

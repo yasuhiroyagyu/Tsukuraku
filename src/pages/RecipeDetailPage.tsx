@@ -1,6 +1,6 @@
-import { ArrowLeft, ChefHat, Clock3, Coins, ListChecks } from "lucide-react";
+import { ArrowLeft, Check, Clock3, Coins, ListChecks, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Badge } from "../components/common/Badge";
 import { Button } from "../components/common/Button";
 import { EmptyState } from "../components/common/EmptyState";
@@ -14,14 +14,17 @@ import { formatPrice } from "../utils/format";
 
 export function RecipeDetailPage() {
   const { recipeId = "" } = useParams();
-  const navigate = useNavigate();
-  const { selectRecipe } = useMealPlanning();
+  const { selectedRecipeIds, addRecipe, removeRecipe } = useMealPlanning();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => { recipeRepository.getById(recipeId).then(setRecipe).finally(() => setLoading(false)); }, [recipeId]);
   if (loading) return <PageContainer><LoadingState /></PageContainer>;
   if (!recipe) return <PageContainer><EmptyState title="料理が見つかりません" description="この料理は削除されたか、URLが間違っている可能性があります。" action={<Link className="font-bold text-teal-700 underline" to="/recipes">料理一覧へ戻る</Link>} /></PageContainer>;
-  const choose = () => { selectRecipe(recipe); navigate("/inventory"); };
+  const isSelected = selectedRecipeIds.includes(recipe.id);
+  const toggleCart = () => {
+    if (isSelected) removeRecipe(recipe.id);
+    else addRecipe(recipe);
+  };
   return (
     <PageContainer>
       <Link to="/recipes" className="mb-5 inline-flex items-center gap-1 text-sm font-bold text-slate-600 hover:text-teal-700"><ArrowLeft size={17} />料理一覧へ</Link>
@@ -33,7 +36,7 @@ export function RecipeDetailPage() {
           <dl className="mt-6 grid grid-cols-3 gap-2"><div className="rounded-xl bg-teal-50 p-3 text-center"><Clock3 className="mx-auto text-teal-700" size={19} /><dt className="mt-1 text-xs text-slate-500">調理時間</dt><dd className="font-black">{recipe.cookingTime}分</dd></div><div className="rounded-xl bg-teal-50 p-3 text-center"><Coins className="mx-auto text-teal-700" size={19} /><dt className="mt-1 text-xs text-slate-500">想定金額</dt><dd className="font-black">{formatPrice(recipe.estimatedCost)}</dd></div><div className="rounded-xl bg-teal-50 p-3 text-center"><ListChecks className="mx-auto text-teal-700" size={19} /><dt className="mt-1 text-xs text-slate-500">食材</dt><dd className="font-black">{recipe.ingredients.length}品</dd></div></dl>
           <section className="mt-8"><h2 className="text-lg font-black">必要な食材</h2><IngredientList ingredients={recipe.ingredients} /></section>
           <section className="mt-8"><h2 className="text-lg font-black">つくり方</h2><ol className="mt-3 space-y-4">{recipe.instructions.map((step, index) => <li key={step} className="flex gap-3 text-sm leading-6 text-slate-700"><span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-teal-700 text-xs font-black text-white">{index + 1}</span><span>{step}</span></li>)}</ol></section>
-          <Button fullWidth className="mt-9 min-h-13" onClick={choose}><ChefHat size={19} />この料理に決める</Button>
+          <Button fullWidth variant={isSelected ? "secondary" : "primary"} className="mt-9 min-h-13" onClick={toggleCart}>{isSelected ? <Check size={19} /> : <Plus size={19} />}{isSelected ? "献立かごに追加済み" : "献立かごに追加"}</Button>
         </div>
       </article>
     </PageContainer>

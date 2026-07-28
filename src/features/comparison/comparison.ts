@@ -9,6 +9,18 @@ import type {
   Unit,
 } from "../../types";
 
+export const aggregateRecipeIngredients = (recipes: { ingredients: RecipeIngredient[] }[]): RecipeIngredient[] => {
+  const totals = new Map<string, RecipeIngredient>();
+  recipes.flatMap((recipe) => recipe.ingredients).forEach((ingredient) => {
+    const key = `${ingredient.ingredientId}:${ingredient.unit}`;
+    const current = totals.get(key);
+    totals.set(key, current
+      ? { ...current, quantity: current.quantity + ingredient.quantity }
+      : { ...ingredient });
+  });
+  return [...totals.values()];
+};
+
 const toBaseQuantity = (quantity: number, unit: Unit): { quantity: number; family: string } => {
   if (unit === "kg") return { quantity: quantity * 1000, family: "weight" };
   if (unit === "g") return { quantity, family: "weight" };

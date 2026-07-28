@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { buildShoppingList, calculateStoreComparisons } from "../features/comparison/comparison";
+import { aggregateRecipeIngredients, buildShoppingList, calculateStoreComparisons } from "../features/comparison/comparison";
 import { mockIngredients } from "../mocks/ingredients";
 import { flyerRepository } from "../repositories/flyerRepository";
 import { storeRepository } from "../repositories/storeRepository";
@@ -7,7 +7,7 @@ import type { InventoryItem, MealPlanningState, Recipe, ShoppingListItem, StoreC
 
 const storageKey = "tsukuraku-meal-plan";
 const initialState: MealPlanningState = {
-  selectedRecipeId: null,
+  selectedRecipeIds: [],
   inventory: [],
   comparisons: [],
   selectedStoreId: null,
@@ -17,17 +17,27 @@ const initialState: MealPlanningState = {
 const loadState = (): MealPlanningState => {
   const raw = localStorage.getItem(storageKey);
   if (!raw) return initialState;
-  try { return { ...initialState, ...(JSON.parse(raw) as Partial<MealPlanningState>) }; }
+  try {
+    const saved = JSON.parse(raw) as Partial<MealPlanningState> & { selectedRecipeId?: string | null };
+    return {
+      ...initialState,
+      ...saved,
+      selectedRecipeIds: Array.isArray(saved.selectedRecipeIds)
+        ? saved.selectedRecipeIds
+        : saved.selectedRecipeId ? [saved.selectedRecipeId] : [],
+    };
+  }
   catch { return initialState; }
 };
 
 type ManualShoppingItem = Pick<ShoppingListItem, "name" | "quantityLabel" | "price">;
 
 type MealPlanningContextValue = MealPlanningState & {
-  selectRecipe: (recipe: Recipe) => void;
+  addRecipe: (recipe: Recipe) => void;
+  removeRecipe: (recipeId: string) => void;
   setInventoryItem: (ingredientId: string, hasItem: boolean) => void;
   setAllInventory: (items: InventoryItem[]) => void;
-  compareStores: (recipe: Recipe) => Promise<StoreComparison[]>;
+  compareStores: (recipes: Recipe[]) => Promise<StoreComparison[]>;
   selectStore: (storeId: string) => Promise<void>;
   addShoppingItem: (item: ManualShoppingItem) => void;
   toggleShoppingItem: (id: string) => void;
@@ -41,16 +51,25 @@ export function MealPlanningProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { localStorage.setItem(storageKey, JSON.stringify(state)); }, [state]);
 
-  const selectRecipe = useCallback((recipe: Recipe) => {
+  const addRecipe = useCallback((recipe: Recipe) => {
     setState((current) => ({
       ...current,
-      selectedRecipeId: recipe.id,
-      inventory: recipe.ingredients.map((item) => ({
-        ingredientId: item.ingredientId,
-        hasItem: current.selectedRecipeId === recipe.id
-          ? (current.inventory.find((stored) => stored.ingredientId === item.ingredientId)?.hasItem ?? false)
-          : false,
-      })),
+      selectedRecipeIds: current.selectedRecipeIds.includes(recipe.id)
+        ? current.selectedRecipeIds
+        : [...current.selectedRecipeIds, recipe.id],
+      inventory: [...current.inventory, ...recipe.ingredients
+        .filter((item) => !current.inventory.some((stored) => stored.ingredientId === item.ingredientId))
+        .map((item) => ({ ingredientId: item.ingredientId, hasItem: false }))],
+      comparisons: [],
+      selectedStoreId: null,
+      shoppingList: [],
+    }));
+  }, []);
+
+  const removeRecipe = useCallback((recipeId: string) => {
+    setState((current) => ({
+      ...current,
+      selectedRecipeIds: current.selectedRecipeIds.filter((id) => id !== recipeId),
       comparisons: [],
       selectedStoreId: null,
       shoppingList: [],
@@ -71,12 +90,12 @@ export function MealPlanningProvider({ children }: { children: ReactNode }) {
     setState((current) => ({ ...current, inventory, comparisons: [], selectedStoreId: null, shoppingList: [] }));
   }, []);
 
-  const compareStores = useCallback(async (recipe: Recipe) => {
+  const compareStores = useCallback(async (recipes: Recipe[]) => {
     const [stores, flyerItems] = await Promise.all([
       storeRepository.getAll(),
       flyerRepository.getItems(),
     ]);
-    const comparisons = calculateStoreComparisons(stores, recipe.ingredients, state.inventory, flyerItems);
+    const comparisons = calculateStoreComparisons(stores, aggregateRecipeIngredients(recipes), state.inventory, flyerItems);
     setState((current) => ({ ...current, comparisons, selectedStoreId: null, shoppingList: [] }));
     return comparisons;
   }, [state.inventory]);
@@ -90,7 +109,7 @@ export function MealPlanningProvider({ children }: { children: ReactNode }) {
       return {
         ...current,
         selectedStoreId: storeId,
-        shoppingList: buildShoppingList(comparison, flyerItems, names),
+        shoppingList: [...buildShoppingList(comparison, flyerItems, names), ...current.shoppingList.filter((item) => item.isManual)],
       };
     });
   }, []);
@@ -123,7 +142,8 @@ export function MealPlanningProvider({ children }: { children: ReactNode }) {
   const resetPlan = useCallback(() => setState(initialState), []);
   const value = useMemo(() => ({
     ...state,
-    selectRecipe,
+    addRecipe,
+    removeRecipe,
     setInventoryItem,
     setAllInventory,
     compareStores,
@@ -131,7 +151,7 @@ export function MealPlanningProvider({ children }: { children: ReactNode }) {
     addShoppingItem,
     toggleShoppingItem,
     resetPlan,
-  }), [state, selectRecipe, setInventoryItem, setAllInventory, compareStores, selectStore, addShoppingItem, toggleShoppingItem, resetPlan]);
+  }), [state, addRecipe, removeRecipe, setInventoryItem, setAllInventory, compareStores, selectStore, addShoppingItem, toggleShoppingItem, resetPlan]);
 
   return <MealPlanningContext.Provider value={value}>{children}</MealPlanningContext.Provider>;
 }
