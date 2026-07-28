@@ -36,6 +36,10 @@ export type Store = {
   branchName: string;
   address: string;
   distanceKm: number;
+  latitude: number;
+  longitude: number;
+  fallbackWalkingMinutes: number;
+  fallbackCyclingMinutes: number;
 };
 
 export type Ingredient = {
