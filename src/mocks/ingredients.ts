@@ -1,7 +1,7 @@
 import type { Ingredient } from "../types";
 
 export const mockIngredients: Ingredient[] = [
-  { id: "rice", name: "米", category: "主食", standardUnit: "g" },
+  { id: "rice", name: "ご飯", category: "主食", standardUnit: "g" },
   { id: "egg", name: "卵", category: "卵・乳製品", standardUnit: "個" },
   { id: "chicken-thigh", name: "鶏もも肉", category: "肉", standardUnit: "g" },
   { id: "chicken-mince", name: "鶏ひき肉", category: "肉", standardUnit: "g" },
@@ -19,11 +19,12 @@ export const mockIngredients: Ingredient[] = [
   { id: "garlic", name: "にんにく", category: "薬味", standardUnit: "g" },
   { id: "tofu", name: "豆腐", category: "大豆製品", standardUnit: "パック" },
   { id: "kimchi", name: "キムチ", category: "加工品", standardUnit: "g" },
-  { id: "tuna", name: "ツナ缶", category: "缶詰", standardUnit: "個" },
+  { id: "sausage", name: "ウインナー", category: "肉加工品", standardUnit: "本" },
+  { id: "tuna", name: "ツナ缶", category: "魚加工品", standardUnit: "缶" },
   { id: "curry-roux", name: "カレールー", category: "加工品", standardUnit: "g" },
   { id: "udon", name: "うどん", category: "麺", standardUnit: "袋" },
   { id: "yakisoba", name: "焼きそば麺", category: "麺", standardUnit: "袋" },
-  { id: "pasta", name: "パスタ", category: "麺", standardUnit: "g" },
+  { id: "pasta", name: "スパゲッティ", category: "主食", standardUnit: "g" },
   { id: "tomato-sauce", name: "トマトソース", category: "加工品", standardUnit: "g" },
   { id: "milk", name: "牛乳", category: "卵・乳製品", standardUnit: "ml" },
   { id: "butter", name: "バター", category: "卵・乳製品", standardUnit: "g" },
@@ -41,6 +42,8 @@ export const mockIngredients: Ingredient[] = [
   { id: "ketchup", name: "ケチャップ", category: "調味料", standardUnit: "g", isSeasoning: true },
   { id: "starch", name: "片栗粉", category: "粉類", standardUnit: "g", isSeasoning: true },
   { id: "dashi", name: "顆粒だし", category: "調味料", standardUnit: "g", isSeasoning: true },
+  { id: "chicken-stock", name: "鶏がらスープの素", category: "調味料", standardUnit: "g", isSeasoning: true },
+  { id: "water", name: "水", category: "その他", standardUnit: "ml", isSeasoning: true },
 ];
 
 export const ingredientMap = new Map(mockIngredients.map((item) => [item.id, item]));

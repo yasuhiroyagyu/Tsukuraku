@@ -10,7 +10,7 @@ import { IngredientList } from "../components/recipes/IngredientList";
 import { useMealPlanning } from "../contexts/MealPlanningContext";
 import { recipeRepository } from "../repositories/recipeRepository";
 import type { Recipe } from "../types";
-import { formatPrice } from "../utils/format";
+import { formatEstimatedCost } from "../utils/format";
 
 export function RecipeDetailPage() {
   const { recipeId = "" } = useParams();
@@ -30,7 +30,8 @@ export function RecipeDetailPage() {
         <div className="p-6 sm:p-8 lg:p-10">
           <div className="hidden lg:block"><Badge>{recipe.difficulty}</Badge><h1 className="mt-3 text-4xl font-black tracking-tight">{recipe.name}</h1></div>
           <p className="mt-3 leading-7 text-slate-600">{recipe.description}</p>
-          <dl className="mt-6 grid grid-cols-3 gap-2"><div className="rounded-xl bg-teal-50 p-3 text-center"><Clock3 className="mx-auto text-teal-700" size={19} /><dt className="mt-1 text-xs text-slate-500">調理時間</dt><dd className="font-black">{recipe.cookingTime}分</dd></div><div className="rounded-xl bg-teal-50 p-3 text-center"><Coins className="mx-auto text-teal-700" size={19} /><dt className="mt-1 text-xs text-slate-500">想定金額</dt><dd className="font-black">{formatPrice(recipe.estimatedCost)}</dd></div><div className="rounded-xl bg-teal-50 p-3 text-center"><ListChecks className="mx-auto text-teal-700" size={19} /><dt className="mt-1 text-xs text-slate-500">食材</dt><dd className="font-black">{recipe.ingredients.length}品</dd></div></dl>
+          <p className="mt-3 text-sm font-bold text-teal-800">{recipe.servings}人分・{recipe.category}{recipe.wattage ? `・電子レンジ${recipe.wattage}W基準` : ""}</p>
+          <dl className="mt-6 grid grid-cols-3 gap-2"><div className="rounded-xl bg-teal-50 p-3 text-center"><Clock3 className="mx-auto text-teal-700" size={19} /><dt className="mt-1 text-xs text-slate-500">調理時間</dt><dd className="font-black">{recipe.cookingTime}分</dd></div><div className="rounded-xl bg-teal-50 p-3 text-center"><Coins className="mx-auto text-teal-700" size={19} /><dt className="mt-1 text-xs text-slate-500">想定金額</dt><dd className="font-black">{formatEstimatedCost(recipe.estimatedCost)}</dd></div><div className="rounded-xl bg-teal-50 p-3 text-center"><ListChecks className="mx-auto text-teal-700" size={19} /><dt className="mt-1 text-xs text-slate-500">食材</dt><dd className="font-black">{recipe.ingredients.length}品</dd></div></dl>
           <section className="mt-8"><h2 className="text-lg font-black">必要な食材</h2><IngredientList ingredients={recipe.ingredients} /></section>
           <section className="mt-8"><h2 className="text-lg font-black">つくり方</h2><ol className="mt-3 space-y-4">{recipe.instructions.map((step, index) => <li key={step} className="flex gap-3 text-sm leading-6 text-slate-700"><span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-teal-700 text-xs font-black text-white">{index + 1}</span><span>{step}</span></li>)}</ol></section>
           <Button fullWidth className="mt-9 min-h-13" onClick={choose}><ChefHat size={19} />この料理に決める</Button>
