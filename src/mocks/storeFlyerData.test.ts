@@ -13,6 +13,12 @@ const addedStoreIds = [
 ] as const;
 
 describe("追加店舗のチラシデータ", () => {
+  it("すべての店舗にHTTPSの画像URLが設定されている", () => {
+    for (const store of mockStores) {
+      expect(store.imageUrl).toMatch(/^https:\/\//);
+    }
+  });
+
   it("指定された6店舗が一意なIDで1件ずつ存在する", () => {
     expect(new Set(mockStores.map((store) => store.id)).size).toBe(mockStores.length);
 
