@@ -44,12 +44,7 @@ const toComparisonItem = (
   required: RecipeIngredient,
   flyerItem?: FlyerItem,
 ): StoreComparisonItem => {
-  if (
-    !flyerItem
-    || flyerItem.price === null
-    || flyerItem.packageQuantity === null
-    || flyerItem.packageUnit === null
-  ) {
+  if (!flyerItem || flyerItem.packageQuantity === null || flyerItem.packageUnit === null) {
     return {
       ingredientId: required.ingredientId,
       flyerItemId: flyerItem?.id ?? null,
@@ -74,8 +69,10 @@ const toComparisonItem = (
     requiredQuantity: required.quantity,
     requiredUnit: required.unit,
     packagesRequired,
-    purchasePrice: packagesRequired === null ? null : packagesRequired * flyerItem.price,
-    isPriceUnknown: packagesRequired === null,
+    purchasePrice: flyerItem.price === null || packagesRequired === null
+      ? null
+      : packagesRequired * flyerItem.price,
+    isPriceUnknown: flyerItem.price === null || packagesRequired === null,
   };
 };
 
@@ -133,24 +130,21 @@ export const buildShoppingList = (
   flyerItems: FlyerItem[],
   ingredientNames: Map<string, string>,
 ): ShoppingListItem[] =>
-  comparison.items.flatMap((item) => {
+  comparison.items.map((item) => {
     const flyerItem = flyerItems.find((candidate) => candidate.id === item.flyerItemId);
-    if (
-      !flyerItem
-      || item.purchasePrice === null
-      || item.packagesRequired === null
-      || flyerItem.packageQuantity === null
-      || flyerItem.packageUnit === null
-    ) {
-      return [];
-    }
+    const quantityLabel = flyerItem
+      && flyerItem.packageQuantity !== null
+      && flyerItem.packageUnit !== null
+      && item.packagesRequired !== null
+      ? flyerItem.packageQuantity + flyerItem.packageUnit + "入り × " + item.packagesRequired
+      : "必要 " + item.requiredQuantity + item.requiredUnit;
 
-    return [{
+    return {
       id: comparison.store.id + "-" + item.ingredientId,
       ingredientId: item.ingredientId,
-      name: ingredientNames.get(item.ingredientId) ?? flyerItem.productNameRaw,
-      quantityLabel: flyerItem.packageQuantity + flyerItem.packageUnit + "入り × " + item.packagesRequired,
+      name: ingredientNames.get(item.ingredientId) ?? flyerItem?.productNameRaw ?? item.ingredientId,
+      quantityLabel,
       price: item.purchasePrice,
       checked: false,
-    }];
+    };
   });
