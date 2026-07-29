@@ -35,6 +35,11 @@ const images = {
   sproutStirFry: "/images/recipes/sprout-stir-fry.png",
   chickenSoboro: "/images/recipes/chicken-soboro.png",
   cabbageEgg: "/images/recipes/cabbage-egg.png",
+  tunaCreamPasta: "/images/recipes/tuna-cream-pasta.png",
+  infiniteBeanSprouts: "/images/recipes/infinite-bean-sprouts.png",
+  milkMochi: "/images/recipes/milk-mochi.png",
+  microwaveCustardPudding: "/images/recipes/microwave-custard-pudding.png",
+  stargazyPie: "/images/recipes/stargazy-pie.png",
 };
 
 const recipe = (
@@ -92,4 +97,9 @@ export const mockRecipes: Recipe[] = [
   recipe("sprout-stir-fry", "もやし炒め", "一袋を使い切り。しゃきしゃき食感の最強節約おかず。", 8, 120, images.sproutStirFry, ["10分以内", "300円以内", "洗い物が少ない"], [ri("bean-sprout", 1, "袋"), ri("pork-slice", 60, "g"), ri("green-onion", 0.5, "本"), ri("sesame-oil", 10, "ml"), soy], ["豚肉を炒める。", "もやしとねぎを加えて強火で炒める。", "しょうゆで味を整える。"]),
   recipe("chicken-soboro", "鶏そぼろ", "ごはんにも麺にも合う、しょうが香る常備菜。", 12, 230, images.chickenSoboro, ["15分以内", "300円以内", "肉料理", "洗い物が少ない"], [ri("chicken-mince", 200, "g"), ri("ginger", 5, "g"), soy, ri("sugar", 10, "g"), ri("sake", 15, "ml")], ["材料をすべてフライパンに入れる。", "菜箸でほぐしながら中火にかける。", "汁気がなくなるまで炒り煮にする。"]),
   recipe("cabbage-egg", "キャベツと卵の炒め物", "ふんわり卵と甘いキャベツ。朝にも夜にも。", 8, 160, images.cabbageEgg, ["10分以内", "300円以内", "洗い物が少ない"], [ri("cabbage", 180, "g"), ri("egg", 2, "個"), oil, ri("salt", 3, "g"), ri("pepper", 1, "g")], ["キャベツをざく切りにする。", "卵を半熟に炒めて一度取り出す。", "キャベツを炒め、卵を戻して味を整える。"]),
+  recipe("tuna-cream-pasta", "ツナのクリームパスタ", "ツナと牛乳で手軽に作れる、まろやかなクリームパスタ。", 15, 280, images.tunaCreamPasta, ["15分以内", "300円以内", "麺"], [ri("pasta", 100, "g"), ri("tuna", 0.5, "缶"), ri("onion", 0.25, "個"), ri("milk", 120, "ml"), ri("butter", 10, "g"), ri("cheese", 15, "g"), ri("salt", 1, "少々"), ri("pepper", 1, "少々", true)], ["パスタを表示時間どおりゆでる。", "フライパンでバターを溶かし、薄切りにした玉ねぎを炒める。", "ツナと牛乳を加えて弱火で温め、チーズを溶かす。", "パスタを加えて和え、塩と好みでこしょうを振る。"], "簡単", { servings: 1, category: "麺類" }),
+  recipe("infinite-bean-sprouts", "無限もやし", "ツナのうま味とごま油で、もやし一袋があっという間になくなる副菜。", 6, 150, images.infiniteBeanSprouts, ["10分以内", "300円以内", "副菜", "洗い物が少ない"], [ri("bean-sprout", 1, "袋"), ri("tuna", 0.5, "缶"), ri("chicken-stock", 0.5, "小さじ"), ri("sesame-oil", 1, "小さじ"), ri("pepper", 1, "少々", true)], ["もやしを耐熱容器に入れ、ふんわりとラップをして600Wで3分加熱する。", "出てきた水分をしっかり切る。", "ツナ、鶏がらスープの素、ごま油を加えて混ぜる。", "好みでこしょうを振る。"], "簡単", { servings: 1, category: "副菜", wattage: 600 }),
+  recipe("milk-mochi", "レンジでミルクもち", "牛乳と片栗粉で作る、もちもち食感のやさしい簡単スイーツ。", 10, 120, images.milkMochi, ["10分以内", "300円以内", "スイーツ", "洗い物が少ない"], [ri("milk", 200, "ml"), ri("starch", 30, "g"), ri("sugar", 20, "g"), ri("soybean-flour", 10, "g", true)], ["耐熱ボウルに牛乳、片栗粉、砂糖を入れ、だまがなくなるまで混ぜる。", "ラップをせず600Wで1分加熱し、取り出してよく混ぜる。", "30秒ずつ追加加熱してその都度混ぜ、全体がもったりしたら冷ます。", "食べやすく分けて器に盛り、好みできな粉をかける。"], "簡単", { servings: 1, category: "スイーツ", wattage: 600 }),
+  recipe("microwave-custard-pudding", "レンジカスタードプリン", "卵と牛乳で作れる、なめらかな一人分の簡単プリン。", 12, 110, images.microwaveCustardPudding, ["15分以内", "300円以内", "スイーツ", "洗い物が少ない"], [ri("egg", 1, "個"), ri("milk", 120, "ml"), ri("sugar", 25, "g"), ri("water", 1, "小さじ")], ["耐熱カップに砂糖10gと水を入れ、600Wで様子を見ながら加熱してカラメル色にする。", "別の容器で卵、残りの砂糖、牛乳を静かに混ぜ、カップへこしながら注ぐ。", "ラップをせず600Wで1分加熱し、固まり具合を見ながら10秒ずつ追加加熱する。", "粗熱を取り、冷蔵庫で冷やす。"], "簡単", { servings: 1, category: "スイーツ", wattage: 600 }),
+  recipe("stargazy-pie", "スターゲイジーパイ", "いわしが星を見上げる、イギリス・コーンウォール地方の伝統的な魚のパイ。", 60, 720, images.stargazyPie, ["魚料理", "オーブン料理", "世界の料理"], [ri("sardine", 300, "g"), ri("pie-sheet", 2, "枚"), ri("potato", 2, "個"), ri("onion", 0.5, "個"), ri("milk", 100, "ml"), ri("butter", 15, "g"), ri("egg", 1, "個"), ri("salt", 2, "g"), ri("pepper", 1, "少々", true)], ["いわしは頭と尾を残して内臓と骨を取り、よく洗って水気を拭く。", "じゃがいもをゆでてつぶし、炒めた玉ねぎ、牛乳、バター、塩を混ぜる。", "耐熱皿にパイシートを敷き、じゃがいものフィリングといわしを詰める。", "いわしの頭が表面から出るように残りのパイシートをかぶせ、縁を閉じる。", "表面に溶き卵を塗り、200℃に予熱したオーブンで25〜30分、こんがり焼く。"], "普通", { servings: 2, category: "主菜" }),
 ];
